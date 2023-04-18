@@ -20,4 +20,4 @@ Route::post('register', [AuthController::class, 'register'])->name('register');
 Route::post('login', [AuthController::class, 'login'])->name('login');
 Route::get('dashboard', [AuthController::class, 'dashboard'])->middleware('isLoggedIn');
 Route::get('logout', [AuthController::class, 'logout']);
-Route::post('check', [AuthController::class, 'checkEmail']);
+Route::post('check-email', [AuthController::class, 'checkEmail']);

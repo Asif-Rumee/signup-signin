@@ -32,12 +32,13 @@
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" class="form-control" name="password" value="" placeholder="Password">
+                <input type="password" class="form-control" id="password" name="password" value="" placeholder="Password">
                 <span class="text-danger">@error('password') {{$message}} @enderror</span>
             </div>
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password:</label>
-                <input type="password" class="form-control" name="password_confirmation" value="" placeholder="Confirm Password">
+                <input type="password" class="form-control" id="confirmPassword" name="password_confirmation" value="" placeholder="Confirm Password">
+                <span id="password_error" class="text-danger"></span>
             </div>
             <div class="form-group d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary mt-3">Sign Up</button>
@@ -60,7 +61,7 @@
                 let emailOrMobile = $(this).val(); // get the value of the email input field
                 $.ajax({
                     type: 'POST',
-                    url: 'check', // the Laravel route that checks if the email exists
+                    url: 'check-email', // the Laravel route that checks if the email exists
                     data: { emailOrMobile: emailOrMobile },
                     success: function(response) {
                         if (response == 'exists') {
@@ -75,6 +76,22 @@
                         console.log(error);
                     }
                 });
+            });
+
+            $('#confirmPassword').blur(function() { 
+                function checkPasswords() {
+                    var password = $('#password').val();
+                    var confirmPassword = $('#confirmPassword').val();
+                    if(password !== confirmPassword){
+                        $('#password_error').html('The passwords do not match.');
+                        $('#password_error').show();
+                        $('button').prop('disabled', true);
+                    }else if(password == confirmPassword){
+                        $('#password_error').hide();
+                        $('button').prop('disabled', false);
+                    }
+                }
+                checkPasswords();
             });
         });
     </script>

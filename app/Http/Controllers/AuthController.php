@@ -47,24 +47,31 @@ class AuthController extends Controller
 
         $user = User::where('emailOrMobile', '=', $request->emailOrMobile)->first();
         $attempt = Attempt::where('user_id', '=', $user->id)->first();
-        // if($attempt){
-        //     $attemptTime = Carbon::parse($attempt->last_attempt_time)->addMinutes(3);
-        //     if($attemptTime > now()){
-        //         return back()->with('fail','You have reached the limit, please try later.');
-        //     }
-        // }
+        if(isset($attempt)){
+            if($attempt->count == 3){
+                $attemptTime = Carbon::parse($attempt->last_attempt_time)->addMinutes(1);
+                if($attemptTime > now()){
+                    return back()->with('fail','You have reached the limit, please try later.');
+                }else{
+                    $attempt->count = 0;
+                    $attempt->last_attempt_time	= null;
+                    $attempt->save();
+                }
+            }
+        }
+        
         if($user){
             if(Hash::check($request->password, $user->password)){
                 $attempt = Attempt::where('user_id', '=', $user->id)->first();
                 if($attempt){
                     $attempt->count = 0;
-                    $attempt->last_attempt_time	= now();
+                    $attempt->last_attempt_time	= null;
                     $attempt->save();
                 }else{
                     $attempt = new Attempt();
                     $attempt->user_id = $user->id;
                     $attempt->count = 0;
-                    $attempt->last_attempt_time	= now();
+                    $attempt->last_attempt_time	= null;
                     $attempt->save();
                 }
                 $request->session()->put('loginId', $user->id);
@@ -86,7 +93,8 @@ class AuthController extends Controller
                     $attempt->last_attempt_time	= now();
                     $attempt->save();
                 }
-                return back()->with('fail','The password not matches.');
+                $remaining = 3-$attempt->count;
+                return back()->with("fail","The password not matches. You have {$remaining} attempts left.");
             }
         }else{
             return back()->with('fail','This email or mobile number is not registered.');
